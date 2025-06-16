@@ -117,7 +117,91 @@
     tr td:nth-child(6) button:active {
         background-color: rgb(252, 81, 81);
     }
-    
+
+    .confirmOn {
+        display: none;
+        position: fixed;
+        top: 65%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+    }
+
+    .confirmOn p {
+        margin: 0 0 10px;
+    }
+
+    .confirmOn button {
+        margin-right: 10px;
+        background-color: #24a528;
+        color: white;
+        padding: 8px 12px;
+        border: none;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+    .confirmOn button.confirmYes {
+        background-color: #ff0b0b;
+    }
+
+    .confirmOn button.confirmYes:hover {
+        background-color: #ff0000;
+    }
+
+    .confirmOn button.confirmNo {
+        background-color: #ccc;
+    }
+
+    .confirmOn button.confirmNo:hover {
+        background-color: #bbb;
+    }
+
+    /* Confirm NO Two */
+    .confirmOnTwo {
+        display: none;
+        position: fixed;
+        top: 65%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+    }
+
+    .confirmOnTwo p {
+        margin: 0 0 10px;
+    }
+
+    .confirmOnTwo button {
+        margin-right: 10px;
+        background-color: #24a528;
+        color: white;
+        padding: 8px 12px;
+        border: none;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+    .confirmOnTwo button.confirmYesTwo {
+        background-color: #ff0b0b;
+    }
+
+    .confirmOnTwo button.confirmYesTwo:hover {
+        background-color: #ff0000;
+    }
+
+    .confirmOnTwo button.confirmNoTwo {
+        background-color: #ccc;
+    }
+
+    .confirmOnTwo button.confirmNoTwo:hover {
+        background-color: #bbb;
+    }
 </style>
 
 <body>
@@ -128,6 +212,11 @@
             <th>Class</th>
             <th>Address</th>
         </thead>
+        <div class="confirmOn">
+            <p>Are you sure you want to delete this Student?</p>
+            <button class="confirmYes" onclick="deltextChange()">Yes</button>
+            <button class="confirmNo">No</button>
+        </div>
         <tbody>
             <tr id="culomnone">
                 <td><input id="btn1inp" type="text"></td>
@@ -135,7 +224,7 @@
                 <td><input id="btn1inp3" type="text"></td>
                 <td><input id="btn1inp4" type="text"></td>
                 <td><button id="button1" onclick="textChange()"> Save</button></td>
-                <td><button id="dbtn1" class="dbtn" onclick="deltextChange()">Delete</button></td>
+                <td><button id="dbtn1" class="dbtn" onclick="toggleConfirm()">Delete</button></td>
             </tr>
             <tr id="culomntwo">
                 <td><input id="btn2inp" type="text" value=""></td>
@@ -143,16 +232,16 @@
                 <td><input id="btn2inp3" type="text" value=""></td>
                 <td><input id="btn2inp4" type="text" value=""></td>
                 <td><button id="button2" onclick="textChangetwo()">Save</button></td>
-                <td><button id="dbtn2" class="dbtn" onclick="deltextChangetwo()">Delete</button></td>
-
+                <td><button id="dbtn2" class="dbtn" onclick="toggleConfirmTwo()">Delete</button></td>
             </tr>
+
             <tr id="culomnthree">
                 <td><input id="btn3inp" type="text" value=""></td>
                 <td><input id="btn3inp2" type="number" value=""></td>
                 <td><input id="btn3inp3" type="text" value=""></td>
                 <td><input id="btn3inp4" type="text" value=""></td>
                 <td><button id="button3" onclick="textChangethree()">Save</button></td>
-                <td><button id="dbtn3" class="dbtn" onclick="deltextChangethree()">Delete</button></td>
+                <td><button id="dbtn3" class="dbtn" onclick="toggleConfirmThree()">Delete</button></td>
             </tr>
             <tr id="culomnfour">
                 <td><input id="btn4inp" type="text" value=""></td>
@@ -160,14 +249,12 @@
                 <td><input id="btn4inp3" type="text" value=""></td>
                 <td><input id="btn4inp4" type="text" value=""></td>
                 <td><button id="button4" onclick="textChangefour()">Save</button></td>
-                <td><button id="dbtn4" class="dbtn" onclick="deltextChangefour()">Delete</button></td>
+                <td><button id="dbtn4" class="dbtn" onclick="toggleConfirmFour()">Delete</button></td>
             </tr>
         </tbody>
     </table>
     <script defer>
-        let date = new Date();
 
-        console.log(date.toLocaleString("en-SG"))
         //regular btns
         let btn1 = document.getElementById("button1");
         let btn2 = document.getElementById("button2");
@@ -204,50 +291,139 @@
         let btn4inp3 = document.querySelector("#btn4inp3");
         let btn4inp4 = document.querySelector("#btn4inp4");
         //Delete text change
+        //first btn delete
+        // Function to toggle confirmation dialog
+        function toggleConfirm() {
+            const confirmDialog = document.querySelector('.confirmOn');
+            const confirmYes = document.querySelector('.confirmYes');
+            const confirmNo = document.querySelector('.confirmNo');
+            confirmDialog.style.display = 'block';
+            let col1 = document.getElementById("culomnone")
+            setTimeout(()=>{
+                document.addEventListener("click" , hideConfirmBox)
+            },0)
+            confirmYes.onclick = () => {
+                deltextChange()
+                let col1 = document.getElementById("culomnone")
+                btn1inp.disabled = false
+                btn1inp2.disabled = false
+                btn1inp3.disabled = false
+                btn1inp4.disabled = false
+                col1.style.backgroundColor = "#fff"
 
-        //first btn
+                confirmDialog.style.display = 'none'; // Hide the dialog if "Yes" is clicked
+            };
+            // Set the click handler for confirmation
+            confirmNo.onclick = () => {
+                confirmDialog.style.display = 'none'; // Hide the dialog if "No" is clicked
+            };
+        }
+        function hideConfirmBox(){
+            const confirmDialog = document.querySelector('.confirmOn');
+            confirmDialog.style.display = "none"
+            document.removeEventListener("click", hideConfirmBox)
+        }
         function deltextChange() {
-            if (dbtn1.innerHTML == "Delete") {
-                dbtn1.innerHTML = "Delete"
-            } else {
-                dbtn1.innerHTML = "Delete"
-            }
+            // Show confirmation dialog
             localStorage.setItem("btn1inp", btn1inp.value = "");
             localStorage.setItem("btn1inp2", btn1inp2.value = "");
             localStorage.setItem("btn1inp3", btn1inp3.value = "");
             localStorage.setItem("btn1inp4", btn1inp4.value = "");
         }
-        //second btn
+        //second btn delete
+        // Function to toggle confirmation dialog
+        function toggleConfirmTwo() {
+            const confirmDialogTwo = document.querySelector('.confirmOn');
+            const confirmYesTwo = document.querySelector('.confirmYes');
+            const confirmNoTwo = document.querySelector('.confirmNo');
+            confirmDialogTwo.style.display = 'block';
+            let col2 = document.getElementById("culomntwo")
+            ///hide the confiming msg when you click anywhere on the sceoon
+               setTimeout(()=>{
+                document.addEventListener("click" , hideConfirmBox)
+            },0)
+            confirmYesTwo.onclick = () => {
+                deltextChangetwo()
+                btn2inp.disabled = false
+                btn2inp2.disabled = false
+                btn2inp3.disabled = false
+                btn2inp4.disabled = false
+                col2.style.backgroundColor = "#fff"
+                confirmDialogTwo.style.display = 'none'; // Hide the dialog if "Yes" is clicked
+            };
+            // Set the click handler for confirmation
+            confirmNoTwo.onclick = () => {
+                confirmDialogTwo.style.display = 'none'; // Hide the dialog if "No" is clicked
+            };
+        }
         function deltextChangetwo() {
-            if (dbtn2.innerHTML == "Delete") {
-                dbtn2.innerHTML = "Delete"
-            } else {
-                dbtn2.innerHTML = "Delete"
-            }
             localStorage.setItem("btn2inp", btn2inp.value = "");
             localStorage.setItem("btn2inp2", btn2inp2.value = "");
             localStorage.setItem("btn2inp3", btn2inp3.value = "");
             localStorage.setItem("btn2inp4", btn2inp4.value = "");
         }
-        //third btn
+        //third btn delete
+        // Function to toggle confirmation dialog
+        function toggleConfirmThree() {
+            const confirmDialogThree = document.querySelector('.confirmOn');
+            const confirmYesThree = document.querySelector('.confirmYes');
+            const confirmNoThree = document.querySelector('.confirmNo');
+            confirmDialogThree.style.display = 'block';
+            let col3 = document.getElementById("culomnthree")
+                    ///hide the confiming msg when you click anywhere on the sceoon
+               setTimeout(()=>{
+                document.addEventListener("click" , hideConfirmBox)
+            },0)
+
+            confirmYesThree.onclick = () => {
+                deltextChangethree()
+                btn3inp.disabled = false
+                btn3inp2.disabled = false
+                btn3inp3.disabled = false
+                btn3inp4.disabled = false
+                col3.style.backgroundColor = "#fff"
+
+                confirmDialogThree.style.display = 'none'; // Hide the dialog if "Yes" is clicked
+            };
+            // Set the click handler for confirmation
+            confirmNoThree.onclick = () => {
+                confirmDialogThree.style.display = 'none'; // Hide the dialog if "No" is clicked
+            };
+        }
         function deltextChangethree() {
-            if (dbtn3.innerHTML == "Delete") {
-                dbtn3.innerHTML = "Delete"
-            } else {
-                dbtn3.innerHTML = "Delete"
-            }
             localStorage.setItem("btn3inp", btn3inp.value = "");
             localStorage.setItem("btn3inp2", btn3inp2.value = "");
             localStorage.setItem("btn3inp3", btn3inp3.value = "");
             localStorage.setItem("btn3inp4", btn3inp4.value = "");
         }
-        //fourth btn
+        //fourth btn delete
+        // Function to toggle confirmation dialog
+        function toggleConfirmFour() {
+            const confirmDialogFour = document.querySelector('.confirmOn');
+            const confirmYesFour = document.querySelector('.confirmYes');
+            const confirmNoFour = document.querySelector('.confirmNo');
+            confirmDialogFour.style.display = 'block';
+            let col4 = document.getElementById("culomnfour")
+                    ///hide the confiming msg when you click anywhere on the sceoon
+               setTimeout(()=>{
+                document.addEventListener("click" , hideConfirmBox)
+            },0)
+            confirmYesFour.onclick = () => {
+                deltextChangefour()
+                btn4inp.disabled = false
+                btn4inp2.disabled = false
+                btn4inp3.disabled = false
+                btn4inp4.disabled = false
+                col4.style.backgroundColor = "#fff"
+                confirmDialogFour.style.display = 'none'; // Hide the dialog if "Yes" is clicked
+            };
+            // Set the click handler for confirmation
+            confirmNoFour.onclick = () => {
+                confirmDialogFour.style.display = 'none'; // Hide the dialog if "No" is clicked
+            };
+        }
+
         function deltextChangefour() {
-            if (dbtn1.innerHTML == "Delete") {
-                dbtn4.innerHTML = "Delete"
-            } else {
-                dbtn4.innerHTML = "Delete"
-            }
             localStorage.setItem("btn4inp", btn4inp.value = "");
             localStorage.setItem("btn4inp2", btn4inp2.value = "");
             localStorage.setItem("btn4inp3", btn4inp3.value = "");
@@ -323,7 +499,7 @@
 
         }
 
-/////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////
 
         function textChange() {
             if (btn1.innerHTML == "Save") {
