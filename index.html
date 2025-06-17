@@ -2,73 +2,94 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Hospital Appointment System</title>
   <style>
     body { font-family: Arial; background: #f4f4f4; margin: 0; padding: 20px; }
     table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
     th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
     th { background: #555; color: white; }
-    input, select { width: 100%; padding: 8px; border: 1px solid #ccc; }
+    input, select { width: 100%; padding: 8px; border: 1px solid #ccc; box-sizing: border-box; }
     button { padding: 8px 12px; border: none; cursor: pointer; border-radius: 4px; }
     .edit { background: #28a745; color: white; }
     .delete { background: #dc3545; color: white; }
     tr.disabled input, tr.disabled select { background: #eee; pointer-events: none; }
-    .confirm { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      background: white; padding: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.2); z-index: 999; };
-      td:nth-child(2) input { /* Age column */
-  width: 20px;
-}
-
-td:nth-child(6) input { /* Complaint column */
-  width: 100%;
-  min-width: 300px;
-}
-
+    .confirm {
+      display: none;
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      z-index: 999;
+    }
+    /* Age column narrower */
+    td:nth-child(3) input {
+      width: 60px;
+    }
+    /* Complaint input wider */
+    td:nth-child(7) input {
+      min-width: 300px;
+    }
+    /* Add Row button styling */
+    #addRowBtn {
+      margin-bottom: 15px;
+      background: #007bff;
+      color: white;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
 
 <h2>Hospital Patient Appointment</h2>
 
+
 <table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Age</th>
-      <th>Sex</th>
-      <th>Address</th>
-      <th>Kind of Appointment</th>
-      <th>Complaint</th>
-      <th>Edit</th>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Sex</th>
+            <th>Address</th>
+            <th>Kind of Appointment</th>
+            <th>Complaint</th>
+            <th>Edit</th>
       <th>Delete</th>
     </tr>
-  </thead>
-  <tbody id="patientTable"></tbody>
+</thead>
+<tbody id="patientTable"></tbody>
 </table>
-<button id="ddd"></button>
+
 <div class="confirm" id="confirmBox">
-  <p>Are you sure you want to delete this record?</p>
-  <button id="confirmYes" onclick="confirmDelete(true)">Yes</button>
-  <button onclick="confirmDelete(false)">No</button>
+    <p>Are you sure you want to delete this record?</p>
+    <button id="confirmYes" onclick="confirmDelete(true)">Yes</button>
+    <button onclick="confirmDelete(false)">No</button>
 </div>
+<button id="addRowBtn">Add New patient</button>
 
 <script>
   const fields = ["name", "age", "sex", "address", "type", "complaint"];
-  const rowCount = 100;
-  document.getElementById("ddd").value
-  let currentDeleteId = null;
-
+  
+  // Load how many rows exist or default 100
+  let rowCount = parseInt(localStorage.getItem("rowCount")) || 10;
+  let nextRowId = rowCount + 1;
+  
   const patientTable = document.getElementById("patientTable");
   const confirmBox = document.getElementById("confirmBox");
-
-  const createRow = (id) => {
-    const tr = document.createElement("tr");
-    tr.dataset.id = id;
+  let currentDeleteId = null;
+  
+  // Create a table row with inputs and buttons
+  function createRow(id) {
+      const tr = document.createElement("tr");
+      tr.dataset.id = id;
 
     tr.innerHTML = `
+      <td>${id}</td>
       <td><input id="name${id}" /></td>
-      <td><input id="age${id}" type="number" /></td>
+      <td><input id="age${id}" type="number" min="0" /></td>
       <td>
         <select id="sex${id}">
           <option value="">--Select--</option>
@@ -91,82 +112,127 @@ td:nth-child(6) input { /* Complaint column */
       <td><button class="edit" id="editBtn${id}" onclick="toggleEdit(${id})">Save</button></td>
       <td><button class="delete" onclick="askDelete(${id})">Delete</button></td>
     `;
-    patientTable.appendChild(tr);
-  };
 
-  const toggleInputs = (id, disabled) => {
+    patientTable.appendChild(tr);
+
+    // Add listeners to inputs/selects to detect edits
+    fields.forEach(f => {
+      const el = document.getElementById(`${f}${id}`);
+      el.addEventListener("input", () => setButtonToSave(id));
+      el.addEventListener("change", () => setButtonToSave(id));
+    });
+  }
+
+  // Enable/Disable inputs in the row (disabled = true means inputs disabled)
+  function toggleInputs(id, disabled) {
     const row = document.querySelector(`tr[data-id="${id}"]`);
+    if (!row) return;
     if (disabled) {
       row.classList.add("disabled");
     } else {
       row.classList.remove("disabled");
     }
-  };
+  }
 
-  const saveRow = (id) => {
+  // Save all inputs in localStorage
+  function saveRow(id) {
     fields.forEach(f => {
       const input = document.getElementById(`${f}${id}`);
-      localStorage.setItem(`${f}${id}`, input.value);
+      if (input) localStorage.setItem(`${f}${id}`, input.value);
     });
     const btn = document.getElementById(`editBtn${id}`);
-    localStorage.setItem(`btnState${id}`, btn.textContent);
-  };
+    if (btn) localStorage.setItem(`btnState${id}`, btn.textContent);
+  }
 
-  const loadRow = (id) => {
+  // Load saved inputs and button state from localStorage
+  function loadRow(id) {
     fields.forEach(f => {
       const el = document.getElementById(`${f}${id}`);
       const val = localStorage.getItem(`${f}${id}`);
-      if (val !== null) el.value = val;
+      if (el && val !== null) el.value = val;
     });
     const state = localStorage.getItem(`btnState${id}`) || "Save";
     const btn = document.getElementById(`editBtn${id}`);
-    btn.textContent = state;
+    if (btn) btn.textContent = state;
     toggleInputs(id, state === "Edit");
-  };
+  }
 
-  const toggleEdit = (id) => {
+  // Toggle between Save and Edit states
+  function toggleEdit(id) {
     const btn = document.getElementById(`editBtn${id}`);
+    if (!btn) return;
     const isEdit = btn.textContent === "Edit";
     btn.textContent = isEdit ? "Save" : "Edit";
     toggleInputs(id, !isEdit);
     saveRow(id);
-  };
+  }
 
-  const askDelete = (id) => {
+  // When user types or changes a field, set button to Save and enable inputs
+  function setButtonToSave(id) {
+    const btn = document.getElementById(`editBtn${id}`);
+    if (btn && btn.textContent === "Edit") {
+      btn.textContent = "Save";
+      toggleInputs(id, false);
+    }
+  }
+
+  // Ask confirmation before deleting
+  function askDelete(id) {
     currentDeleteId = id;
     confirmBox.style.display = "block";
-        // Add one-time click event to body
-                document.removeEventListener('click',hideConfirmingBox)
-
+    // Prevent clicking outside from immediately closing dialog
+    document.removeEventListener('click', hideConfirmingBox);
     setTimeout(() => {
-        document.addEventListener("click", hideConfirmingBox);
+      document.addEventListener("click", hideConfirmingBox);
     }, 0);
-  };
-function hideConfirmingBox(){
-                confirmDialog = document.getElementById("confirmBox")
-                confirmDialog.style.display = "none";
-                document.removeEventListener('click',hideConfirmingBox)
-}
+  }
 
-  const confirmDelete = (doDelete) => {
-    if (doDelete && currentDeleteId) {
+  // Hide confirmation box if clicked outside
+  function hideConfirmingBox(event) {
+    const confirmDialog = document.getElementById("confirmBox");
+    if (!confirmDialog.contains(event.target)) {
+      confirmDialog.style.display = "none";
+      document.removeEventListener('click', hideConfirmingBox);
+    }
+  }
+
+  // Delete row data and reset inputs, then hide confirmation
+  function confirmDelete(doDelete) {
+    if (doDelete && currentDeleteId !== null) {
       fields.forEach(f => {
         const el = document.getElementById(`${f}${currentDeleteId}`);
-        el.value = "";
-        el.disabled = false;
-        localStorage.setItem(`${f}${currentDeleteId}`, "");
+        if (el) {
+          el.value = "";
+          el.disabled = false;
+          localStorage.setItem(`${f}${currentDeleteId}`, "");
+        }
       });
       const btn = document.getElementById(`editBtn${currentDeleteId}`);
-      btn.textContent = "Save";
+      if (btn) btn.textContent = "Save";
       toggleInputs(currentDeleteId, false);
       localStorage.setItem(`btnState${currentDeleteId}`, "Save");
     }
     confirmBox.style.display = "none";
-  };
+  }
 
-  for (let i = 1; i <= rowCount; i++) createRow(i);
+  // Add a new row dynamically and update localStorage rowCount
+  function addNewRow() {
+    createRow(nextRowId);
+    loadRow(nextRowId);
+    rowCount++;
+    localStorage.setItem("rowCount", rowCount);
+    nextRowId++;
+  }
+
+  // Initialize table on page load
   window.onload = () => {
-    for (let i = 1; i <= rowCount; i++) loadRow(i);
+    for (let i = 1; i <= rowCount; i++) {
+      createRow(i);
+      loadRow(i);
+    }
+
+    // Hook up Add Row button
+    document.getElementById("addRowBtn").addEventListener("click", addNewRow);
   };
 </script>
 
