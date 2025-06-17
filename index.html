@@ -1,644 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Studant registeration page</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hospital Appointment System</title>
+  <style>
+    body { font-family: Arial; background: #f4f4f4; margin: 0; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+    th { background: #555; color: white; }
+    input, select { width: 100%; padding: 8px; border: 1px solid #ccc; }
+    button { padding: 8px 12px; border: none; cursor: pointer; border-radius: 4px; }
+    .edit { background: #28a745; color: white; }
+    .delete { background: #dc3545; color: white; }
+    tr.disabled input, tr.disabled select { background: #eee; pointer-events: none; }
+    .confirm { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: white; padding: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.2); z-index: 999; };
+      td:nth-child(2) input { /* Age column */
+  width: 20px;
+}
+
+td:nth-child(6) input { /* Complaint column */
+  width: 100%;
+  min-width: 300px;
+}
+
+  </style>
 </head>
-<style>
-    /* General body styling */
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f9f9f9;
-        margin: 0;
-        padding: 20px;
-    }
-
-    /* Table styling */
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 20px 0;
-        background-color: #ffffff;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    th,
-    td {
-        padding: 10px;
-        text-align: left;
-        /* border: 1px solid #ddd; */
-        /* border-left: 1px solid #ddd; */
-    }
-
-    th {
-        background-color: #909290;
-        color: white;
-        font-weight: bold;
-    }
-
-
-    tr:hover {
-        /* background-color: #e9f5e9; */
-    }
-
-    /* Input styling */
-    input[type="text"],
-    input[type="number"] {
-        width: 100%;
-        padding: 8px;
-        margin: 2px 0;
-        box-sizing: border-box;
-        border: 1px solid #6d6d6d;
-        border-radius: 0;
-    }
-
-    input[type="text"]:focus,
-    input[type="number"]:focus {
-        border: 1px solid #24a528;
-        outline: none;
-    }
-
-    input:disabled {
-        background-color: #f0f0f0;
-        color: #888;
-    }
-
-    /* Button styling */
-    button {
-        background-color: #24a528;
-        color: white;
-        width: 70px;
-        height: 40px;
-        border: none;
-        padding: 8px 12px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 18px;
-        margin: 4px 2px;
-        cursor: pointer;
-        border-radius: 4px;
-        transition: background-color 0.1s ease;
-    }
-
-    button:active {
-        background-color: #20ff28;
-    }
-
-    input::-webkit-inner-spin-button {
-        display: none;
-    }
-
-    /* button:hover {
-        background-color: #2eca33;
-    } */
-    button:disabled {
-        background-color: #ccc;
-        cursor: not-allowed;
-    }
-
-    .dbtn {
-        font-size: 16px;
-    }
-
-    /* #dbtn1{
-        display: none;
-    } */
-    tr td:nth-child(6) button {
-        background-color: rgb(238, 4, 4);
-    }
-
-    tr td:nth-child(6) button:hover {
-        background-color: rgb(255, 0, 0);
-    }
-
-    tr td:nth-child(6) button:active {
-        background-color: rgb(252, 81, 81);
-    }
-
-    .confirmOn {
-        display: none;
-        position: fixed;
-        top: 65%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: #fff;
-        padding: 20px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
-    }
-
-    .confirmOn p {
-        margin: 0 0 10px;
-    }
-
-    .confirmOn button {
-        margin-right: 10px;
-        background-color: #24a528;
-        color: white;
-        padding: 8px 12px;
-        border: none;
-        cursor: pointer;
-        border-radius: 4px;
-    }
-
-    .confirmOn button.confirmYes {
-        background-color: #ff0b0b;
-    }
-
-    .confirmOn button.confirmYes:hover {
-        background-color: #ff0000;
-    }
-
-    .confirmOn button.confirmNo {
-        background-color: #ccc;
-    }
-
-    .confirmOn button.confirmNo:hover {
-        background-color: #bbb;
-    }
-
-    /* Confirm NO Two */
-    .confirmOnTwo {
-        display: none;
-        position: fixed;
-        top: 65%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: #fff;
-        padding: 20px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
-    }
-
-    .confirmOnTwo p {
-        margin: 0 0 10px;
-    }
-
-    .confirmOnTwo button {
-        margin-right: 10px;
-        background-color: #24a528;
-        color: white;
-        padding: 8px 12px;
-        border: none;
-        cursor: pointer;
-        border-radius: 4px;
-    }
-
-    .confirmOnTwo button.confirmYesTwo {
-        background-color: #ff0b0b;
-    }
-
-    .confirmOnTwo button.confirmYesTwo:hover {
-        background-color: #ff0000;
-    }
-
-    .confirmOnTwo button.confirmNoTwo {
-        background-color: #ccc;
-    }
-
-    .confirmOnTwo button.confirmNoTwo:hover {
-        background-color: #bbb;
-    }
-</style>
-
 <body>
-    <table>
-        <thead>
-            <th>Name</th>
-            <th>Age</th>
-            <th>Class</th>
-            <th>Address</th>
-        </thead>
-        <div class="confirmOn">
-            <p>Are you sure you want to delete this Student?</p>
-            <button class="confirmYes" onclick="deltextChange()">Yes</button>
-            <button class="confirmNo">No</button>
-        </div>
-        <tbody>
-            <tr id="culomnone">
-                <td><input id="btn1inp" type="text"></td>
-                <td><input id="btn1inp2" type="number"></td>
-                <td><input id="btn1inp3" type="text"></td>
-                <td><input id="btn1inp4" type="text"></td>
-                <td><button id="button1" onclick="textChange()"> Save</button></td>
-                <td><button id="dbtn1" class="dbtn" onclick="toggleConfirm()">Delete</button></td>
-            </tr>
-            <tr id="culomntwo">
-                <td><input id="btn2inp" type="text" value=""></td>
-                <td><input id="btn2inp2" type="number" value=""></td>
-                <td><input id="btn2inp3" type="text" value=""></td>
-                <td><input id="btn2inp4" type="text" value=""></td>
-                <td><button id="button2" onclick="textChangetwo()">Save</button></td>
-                <td><button id="dbtn2" class="dbtn" onclick="toggleConfirmTwo()">Delete</button></td>
-            </tr>
 
-            <tr id="culomnthree">
-                <td><input id="btn3inp" type="text" value=""></td>
-                <td><input id="btn3inp2" type="number" value=""></td>
-                <td><input id="btn3inp3" type="text" value=""></td>
-                <td><input id="btn3inp4" type="text" value=""></td>
-                <td><button id="button3" onclick="textChangethree()">Save</button></td>
-                <td><button id="dbtn3" class="dbtn" onclick="toggleConfirmThree()">Delete</button></td>
-            </tr>
-            <tr id="culomnfour">
-                <td><input id="btn4inp" type="text" value=""></td>
-                <td><input id="btn4inp2" type="number" value=""></td>
-                <td><input id="btn4inp3" type="text" value=""></td>
-                <td><input id="btn4inp4" type="text" value=""></td>
-                <td><button id="button4" onclick="textChangefour()">Save</button></td>
-                <td><button id="dbtn4" class="dbtn" onclick="toggleConfirmFour()">Delete</button></td>
-            </tr>
-        </tbody>
-    </table>
-    <script defer>
+<h2>Hospital Patient Appointment</h2>
 
-        //regular btns
-        let btn1 = document.getElementById("button1");
-        let btn2 = document.getElementById("button2");
-        let btn3 = document.getElementById("button3");
-        let btn4 = document.getElementById("button4");
-        //Delete btns
-        let dbtn1 = document.getElementById("dbtn1");
-        let dbtn2 = document.getElementById("dbtn2");
-        let dbtn3 = document.getElementById("dbtn3");
-        let dbtn4 = document.getElementById("dbtn4");
-        //culomns
-        let col1 = document.getElementById("culomnone")
-        let col2 = document.getElementById("culomntwo")
-        let col3 = document.getElementById("culomnthree")
-        let col4 = document.getElementById("culomnfour")
-        //First row inputs
-        let btn1inp = document.querySelector("#btn1inp");
-        let btn1inp2 = document.querySelector("#btn1inp2");
-        let btn1inp3 = document.querySelector("#btn1inp3");
-        let btn1inp4 = document.querySelector("#btn1inp4");
-        //Second row inputs
-        let btn2inp = document.querySelector("#btn2inp");
-        let btn2inp2 = document.querySelector("#btn2inp2");
-        let btn2inp3 = document.querySelector("#btn2inp3");
-        let btn2inp4 = document.querySelector("#btn2inp4");
-        //Third row inputs
-        let btn3inp = document.querySelector("#btn3inp");
-        let btn3inp2 = document.querySelector("#btn3inp2");
-        let btn3inp3 = document.querySelector("#btn3inp3");
-        let btn3inp4 = document.querySelector("#btn3inp4");
-        //Fourth row inputs
-        let btn4inp = document.querySelector("#btn4inp");
-        let btn4inp2 = document.querySelector("#btn4inp2");
-        let btn4inp3 = document.querySelector("#btn4inp3");
-        let btn4inp4 = document.querySelector("#btn4inp4");
-        //Delete text change
-        //first btn delete
-        // Function to toggle confirmation dialog
-        function toggleConfirm() {
-            const confirmDialog = document.querySelector('.confirmOn');
-            const confirmYes = document.querySelector('.confirmYes');
-            const confirmNo = document.querySelector('.confirmNo');
-            confirmDialog.style.display = 'block';
-            let col1 = document.getElementById("culomnone")
-            setTimeout(()=>{
-                document.addEventListener("click" , hideConfirmBox)
-            },0)
-            confirmYes.onclick = () => {
-                deltextChange()
-                let col1 = document.getElementById("culomnone")
-                btn1inp.disabled = false
-                btn1inp2.disabled = false
-                btn1inp3.disabled = false
-                btn1inp4.disabled = false
-                col1.style.backgroundColor = "#fff"
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Age</th>
+      <th>Sex</th>
+      <th>Address</th>
+      <th>Kind of Appointment</th>
+      <th>Complaint</th>
+      <th>Edit</th>
+      <th>Delete</th>
+    </tr>
+  </thead>
+  <tbody id="patientTable"></tbody>
+</table>
+<button id="ddd"></button>
+<div class="confirm" id="confirmBox">
+  <p>Are you sure you want to delete this record?</p>
+  <button id="confirmYes" onclick="confirmDelete(true)">Yes</button>
+  <button onclick="confirmDelete(false)">No</button>
+</div>
 
-                confirmDialog.style.display = 'none'; // Hide the dialog if "Yes" is clicked
-            };
-            // Set the click handler for confirmation
-            confirmNo.onclick = () => {
-                confirmDialog.style.display = 'none'; // Hide the dialog if "No" is clicked
-            };
-        }
-        function hideConfirmBox(){
-            const confirmDialog = document.querySelector('.confirmOn');
-            confirmDialog.style.display = "none"
-            document.removeEventListener("click", hideConfirmBox)
-        }
-        function deltextChange() {
-            // Show confirmation dialog
-            localStorage.setItem("btn1inp", btn1inp.value = "");
-            localStorage.setItem("btn1inp2", btn1inp2.value = "");
-            localStorage.setItem("btn1inp3", btn1inp3.value = "");
-            localStorage.setItem("btn1inp4", btn1inp4.value = "");
-        }
-        //second btn delete
-        // Function to toggle confirmation dialog
-        function toggleConfirmTwo() {
-            const confirmDialogTwo = document.querySelector('.confirmOn');
-            const confirmYesTwo = document.querySelector('.confirmYes');
-            const confirmNoTwo = document.querySelector('.confirmNo');
-            confirmDialogTwo.style.display = 'block';
-            let col2 = document.getElementById("culomntwo")
-            ///hide the confiming msg when you click anywhere on the sceoon
-               setTimeout(()=>{
-                document.addEventListener("click" , hideConfirmBox)
-            },0)
-            confirmYesTwo.onclick = () => {
-                deltextChangetwo()
-                btn2inp.disabled = false
-                btn2inp2.disabled = false
-                btn2inp3.disabled = false
-                btn2inp4.disabled = false
-                col2.style.backgroundColor = "#fff"
-                confirmDialogTwo.style.display = 'none'; // Hide the dialog if "Yes" is clicked
-            };
-            // Set the click handler for confirmation
-            confirmNoTwo.onclick = () => {
-                confirmDialogTwo.style.display = 'none'; // Hide the dialog if "No" is clicked
-            };
-        }
-        function deltextChangetwo() {
-            localStorage.setItem("btn2inp", btn2inp.value = "");
-            localStorage.setItem("btn2inp2", btn2inp2.value = "");
-            localStorage.setItem("btn2inp3", btn2inp3.value = "");
-            localStorage.setItem("btn2inp4", btn2inp4.value = "");
-        }
-        //third btn delete
-        // Function to toggle confirmation dialog
-        function toggleConfirmThree() {
-            const confirmDialogThree = document.querySelector('.confirmOn');
-            const confirmYesThree = document.querySelector('.confirmYes');
-            const confirmNoThree = document.querySelector('.confirmNo');
-            confirmDialogThree.style.display = 'block';
-            let col3 = document.getElementById("culomnthree")
-                    ///hide the confiming msg when you click anywhere on the sceoon
-               setTimeout(()=>{
-                document.addEventListener("click" , hideConfirmBox)
-            },0)
+<script>
+  const fields = ["name", "age", "sex", "address", "type", "complaint"];
+  const rowCount = 45;
+  document.getElementById("ddd").value
+  let currentDeleteId = null;
 
-            confirmYesThree.onclick = () => {
-                deltextChangethree()
-                btn3inp.disabled = false
-                btn3inp2.disabled = false
-                btn3inp3.disabled = false
-                btn3inp4.disabled = false
-                col3.style.backgroundColor = "#fff"
+  const patientTable = document.getElementById("patientTable");
+  const confirmBox = document.getElementById("confirmBox");
 
-                confirmDialogThree.style.display = 'none'; // Hide the dialog if "Yes" is clicked
-            };
-            // Set the click handler for confirmation
-            confirmNoThree.onclick = () => {
-                confirmDialogThree.style.display = 'none'; // Hide the dialog if "No" is clicked
-            };
-        }
-        function deltextChangethree() {
-            localStorage.setItem("btn3inp", btn3inp.value = "");
-            localStorage.setItem("btn3inp2", btn3inp2.value = "");
-            localStorage.setItem("btn3inp3", btn3inp3.value = "");
-            localStorage.setItem("btn3inp4", btn3inp4.value = "");
-        }
-        //fourth btn delete
-        // Function to toggle confirmation dialog
-        function toggleConfirmFour() {
-            const confirmDialogFour = document.querySelector('.confirmOn');
-            const confirmYesFour = document.querySelector('.confirmYes');
-            const confirmNoFour = document.querySelector('.confirmNo');
-            confirmDialogFour.style.display = 'block';
-            let col4 = document.getElementById("culomnfour")
-                    ///hide the confiming msg when you click anywhere on the sceoon
-               setTimeout(()=>{
-                document.addEventListener("click" , hideConfirmBox)
-            },0)
-            confirmYesFour.onclick = () => {
-                deltextChangefour()
-                btn4inp.disabled = false
-                btn4inp2.disabled = false
-                btn4inp3.disabled = false
-                btn4inp4.disabled = false
-                col4.style.backgroundColor = "#fff"
-                confirmDialogFour.style.display = 'none'; // Hide the dialog if "Yes" is clicked
-            };
-            // Set the click handler for confirmation
-            confirmNoFour.onclick = () => {
-                confirmDialogFour.style.display = 'none'; // Hide the dialog if "No" is clicked
-            };
-        }
+  const createRow = (id) => {
+    const tr = document.createElement("tr");
+    tr.dataset.id = id;
 
-        function deltextChangefour() {
-            localStorage.setItem("btn4inp", btn4inp.value = "");
-            localStorage.setItem("btn4inp2", btn4inp2.value = "");
-            localStorage.setItem("btn4inp3", btn4inp3.value = "");
-            localStorage.setItem("btn4inp4", btn4inp4.value = "");
-        }
-        //first btn change
-        window.onload = () => {
-            if (btn1.innerHTML == "Edit") {
-                btn1inp.disabled = true
-                btn1inp2.disabled = true
-                btn1inp3.disabled = true
-                btn1inp4.disabled = true
-                col1.style.backgroundColor = "#eee"
-            }
-            if (btn1.innerHTML == "Save") {
-                btn1inp.disabled = false
-                btn1inp2.disabled = false
-                btn1inp3.disabled = false
-                btn1inp4.disabled = false
-                col1.style.backgroundColor = "#fff"
-            }
+    tr.innerHTML = `
+      <td><input id="name${id}" /></td>
+      <td><input id="age${id}" type="number" /></td>
+      <td>
+        <select id="sex${id}">
+          <option value="">--Select--</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
+      </td>
+      <td><input id="address${id}" /></td>
+      <td>
+        <select id="type${id}">
+          <option value="">--Select--</option>
+          <option>Checkup</option>
+          <option>Emergency</option>
+          <option>Follow-up</option>
+          <option>Referral</option>
+        </select>
+      </td>
+      <td><input id="complaint${id}" /></td>
+      <td><button class="edit" id="editBtn${id}" onclick="toggleEdit(${id})">Save</button></td>
+      <td><button class="delete" onclick="askDelete(${id})">Delete</button></td>
+    `;
+    patientTable.appendChild(tr);
+  };
 
-            ///////////////////////////////////////////////////////
+  const toggleInputs = (id, disabled) => {
+    const row = document.querySelector(`tr[data-id="${id}"]`);
+    if (disabled) {
+      row.classList.add("disabled");
+    } else {
+      row.classList.remove("disabled");
+    }
+  };
 
-            if (btn2.innerHTML == "Edit") {
-                btn2inp.disabled = true
-                btn2inp2.disabled = true
-                btn2inp3.disabled = true
-                btn2inp4.disabled = true
-                col2.style.backgroundColor = "#eee"
-            }
-            if (btn2.innerHTML == "Save") {
-                btn2inp.disabled = false
-                btn2inp2.disabled = false
-                btn2inp3.disabled = false
-                btn2inp4.disabled = false
-                col2.style.backgroundColor = "#fff"
-            }
+  const saveRow = (id) => {
+    fields.forEach(f => {
+      const input = document.getElementById(`${f}${id}`);
+      localStorage.setItem(`${f}${id}`, input.value);
+    });
+    const btn = document.getElementById(`editBtn${id}`);
+    localStorage.setItem(`btnState${id}`, btn.textContent);
+  };
 
-            //////////////////////////////////////////////////////////
+  const loadRow = (id) => {
+    fields.forEach(f => {
+      const el = document.getElementById(`${f}${id}`);
+      const val = localStorage.getItem(`${f}${id}`);
+      if (val !== null) el.value = val;
+    });
+    const state = localStorage.getItem(`btnState${id}`) || "Save";
+    const btn = document.getElementById(`editBtn${id}`);
+    btn.textContent = state;
+    toggleInputs(id, state === "Edit");
+  };
 
-            if (btn3.innerHTML == "Edit") {
-                btn3inp.disabled = true
-                btn3inp2.disabled = true
-                btn3inp3.disabled = true
-                btn3inp4.disabled = true
-                col3.style.backgroundColor = "#eee"
-            }
-            if (btn3.innerHTML == "Save") {
-                btn3inp.disabled = false
-                btn3inp2.disabled = false
-                btn3inp3.disabled = false
-                btn3inp4.disabled = false
-                col3.style.backgroundColor = "#fff"
-            }
+  const toggleEdit = (id) => {
+    const btn = document.getElementById(`editBtn${id}`);
+    const isEdit = btn.textContent === "Edit";
+    btn.textContent = isEdit ? "Save" : "Edit";
+    toggleInputs(id, !isEdit);
+    saveRow(id);
+  };
 
-            //////////////////////////////////////////////////////////
+  const askDelete = (id) => {
+    currentDeleteId = id;
+    confirmBox.style.display = "block";
+        // Add one-time click event to body
+                document.removeEventListener('click',hideConfirmingBox)
 
-            if (btn4.innerHTML == "Edit") {
-                btn4inp.disabled = true
-                btn4inp2.disabled = true
-                btn4inp3.disabled = true
-                btn4inp4.disabled = true
-                col4.style.backgroundColor = "#eee"
-            }
-            if (btn4.innerHTML == "Save") {
-                btn4inp.disabled = false
-                btn4inp2.disabled = false
-                btn4inp3.disabled = false
-                btn4inp4.disabled = false
-                col4.style.backgroundColor = "#fff"
-            }
+    setTimeout(() => {
+        document.addEventListener("click", hideConfirmingBox);
+    }, 0);
+  };
+function hideConfirmingBox(){
+                confirmDialog = document.getElementById("confirmBox")
+                confirmDialog.style.display = "none";
+                document.removeEventListener('click',hideConfirmingBox)
+}
 
-        }
+  const confirmDelete = (doDelete) => {
+    if (doDelete && currentDeleteId) {
+      fields.forEach(f => {
+        const el = document.getElementById(`${f}${currentDeleteId}`);
+        el.value = "";
+        el.disabled = false;
+        localStorage.setItem(`${f}${currentDeleteId}`, "");
+      });
+      const btn = document.getElementById(`editBtn${currentDeleteId}`);
+      btn.textContent = "Save";
+      toggleInputs(currentDeleteId, false);
+      localStorage.setItem(`btnState${currentDeleteId}`, "Save");
+    }
+    confirmBox.style.display = "none";
+  };
 
-        /////////////////////////////////////////////////////////
+  for (let i = 1; i <= rowCount; i++) createRow(i);
+  window.onload = () => {
+    for (let i = 1; i <= rowCount; i++) loadRow(i);
+  };
+</script>
 
-        function textChange() {
-            if (btn1.innerHTML == "Save") {
-                btn1.innerHTML = "Edit";
-                btn1inp.disabled = true
-                btn1inp2.disabled = true
-                btn1inp3.disabled = true
-                btn1inp4.disabled = true
-                col1.style.backgroundColor = "#eee"
-            } else {
-                btn1.innerHTML = "Save";
-                btn1inp.disabled = false
-                btn1inp2.disabled = false
-                btn1inp3.disabled = false
-                btn1inp4.disabled = false
-                col1.style.backgroundColor = "#fff"
-            }
-
-
-            localStorage.setItem("btnv", btn1.innerHTML)
-            localStorage.setItem("btn1inp", btn1inp.value);
-            localStorage.setItem("btn1inp2", btn1inp2.value);
-            localStorage.setItem("btn1inp3", btn1inp3.value);
-            localStorage.setItem("btn1inp4", btn1inp4.value);
-        }
-        function getValue() {
-            // if (btn1.innerHTML == "Edit") {
-            //     btn1inp.disabled = true
-            //     btn1inp2.disabled = true
-            //     btn1inp3.disabled = true
-            //     btn1inp4.disabled = true
-            // }
-            // if (btn1.innerHTML == "Save") {
-            //     btn1inp.disabled = false
-            //     btn1inp2.disabled = false
-            //     btn1inp3.disabled = false
-            //     btn1inp4.disabled = false
-            // }
-            btn1.innerHTML = localStorage.getItem("btnv")
-            btn1inp.value = localStorage.getItem("btn1inp");
-            btn1inp2.value = localStorage.getItem("btn1inp2");
-            btn1inp3.value = localStorage.getItem("btn1inp3");
-            btn1inp4.value = localStorage.getItem("btn1inp4");
-        }
-        getValue();
-        //Second btn change
-        function textChangetwo() {
-            if (btn2.innerHTML == "Save") {
-                btn2.innerHTML = "Edit";
-                btn2inp.disabled = true
-                btn2inp2.disabled = true
-                btn2inp3.disabled = true
-                btn2inp4.disabled = true
-                col2.style.backgroundColor = "#eee"
-            } else {
-                btn2.innerHTML = "Save";
-                btn2inp.disabled = false
-                btn2inp2.disabled = false
-                btn2inp3.disabled = false
-                btn2inp4.disabled = false
-                col2.style.backgroundColor = "#fff"
-            }
-            localStorage.setItem("btnvv", btn2.innerHTML)
-            localStorage.setItem("btn2inp", btn2inp.value);
-            localStorage.setItem("btn2inp2", btn2inp2.value);
-            localStorage.setItem("btn2inp3", btn2inp3.value);
-            localStorage.setItem("btn2inp4", btn2inp4.value);
-        }
-        function getValue2() {
-            btn2.innerHTML = localStorage.getItem("btnvv")
-            btn2inp.value = localStorage.getItem("btn2inp");
-            btn2inp2.value = localStorage.getItem("btn2inp2");
-            btn2inp3.value = localStorage.getItem("btn2inp3");
-            btn2inp4.value = localStorage.getItem("btn2inp4");
-        }
-        getValue2();
-        //Third btn change
-        function textChangethree() {
-            if (btn3.innerHTML == "Save") {
-                btn3.innerHTML = "Edit";
-                btn3inp.disabled = true
-                btn3inp2.disabled = true
-                btn3inp3.disabled = true
-                btn3inp4.disabled = true
-                col3.style.backgroundColor = "#eee"
-            } else {
-                btn3.innerHTML = "Save";
-                btn3inp.disabled = false
-                btn3inp2.disabled = false
-                btn3inp3.disabled = false
-                btn3inp4.disabled = false
-                col3.style.backgroundColor = "#fff"
-            }
-            localStorage.setItem("btnvvv", btn3.innerHTML)
-            localStorage.setItem("btn3inp", btn3inp.value);
-            localStorage.setItem("btn3inp2", btn3inp2.value);
-            localStorage.setItem("btn3inp3", btn3inp3.value);
-            localStorage.setItem("btn3inp4", btn3inp4.value);
-        }
-        function getValue3() {
-            btn3.innerHTML = localStorage.getItem("btnvvv")
-            btn3inp.value = localStorage.getItem("btn3inp");
-            btn3inp2.value = localStorage.getItem("btn3inp2");
-            btn3inp3.value = localStorage.getItem("btn3inp3");
-            btn3inp4.value = localStorage.getItem("btn3inp4");
-        }
-        getValue3();
-        //Fourth btn change
-        function textChangefour() {
-            if (btn4.innerHTML == "Save") {
-                btn4.innerHTML = "Edit";
-                btn4inp.disabled = true
-                btn4inp2.disabled = true
-                btn4inp3.disabled = true
-                btn4inp4.disabled = true
-                col4.style.backgroundColor = "#eee"
-            } else {
-                btn4.innerHTML = "Save";
-                btn4inp.disabled = false
-                btn4inp2.disabled = false
-                btn4inp3.disabled = false
-                btn4inp4.disabled = false
-                col4.style.backgroundColor = "#fff"
-            }
-            localStorage.setItem("btnvvvv", btn4.innerHTML)
-            localStorage.setItem("btn4inp", btn4inp.value);
-            localStorage.setItem("btn4inp2", btn4inp2.value);
-            localStorage.setItem("btn4inp3", btn4inp3.value);
-            localStorage.setItem("btn4inp4", btn4inp4.value);
-        }
-        function getValue4() {
-            btn4.innerHTML = localStorage.getItem("btnvvvv")
-            btn4inp.value = localStorage.getItem("btn4inp");
-            btn4inp2.value = localStorage.getItem("btn4inp2");
-            btn4inp3.value = localStorage.getItem("btn4inp3");
-            btn4inp4.value = localStorage.getItem("btn4inp4");
-        }
-        getValue4();
-    </script>
 </body>
-
 </html>
