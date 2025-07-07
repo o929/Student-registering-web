@@ -3,177 +3,429 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Hospital Appointment System</title>
+  <title>Hospital Lab Report System</title>
   <style>
-    body { font-family: Arial; background: #f4f4f4; margin: 0; padding: 20px; }
-    table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
-    th { background: #555; color: white; }
-    input, select { width: 100%; padding: 8px; border: 1px solid #ccc; box-sizing: border-box; }
-    button { padding: 8px 12px; border: none; cursor: pointer; border-radius: 4px; }
-    .edit { background: #28a745; color: white; }
-    .delete { background: #dc3545; color: white; }
-    tr.disabled input, tr.disabled select { background: #eee; pointer-events: none; }
-    .confirm {
-      display: none;
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      margin: 30px;
+      color: #333;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 40px;
+      color: #004085;
+      font-weight: 700;
+    }
+
+    #labReportsContainer {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .lab-form {
+      background: white;
+      border-radius: 10px;
+      padding: 25px 30px;
+      margin-bottom: 40px;
+      box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+      position: relative;
+      transition: opacity 0.3s ease;
+    }
+
+    .lab-form h3 {
+      color: #007bff;
+      margin-top: 0;
+      border-bottom: 3px solid #007bff;
+      padding-bottom: 8px;
+      margin-bottom: 25px;
+      font-weight: 700;
+    }
+
+    /* Sections (excluding urine/stool boxes) */
+    .section {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 15px 20px;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    /* Urine and Stool boxes with border */
+    .box {
+      border: 2px solid #007bff;
+      border-radius: 10px;
+      padding: 20px 25px;
+      margin-bottom: 30px;
+      background: #e9f0fb;
+    }
+    .box h4 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      color: #0056b3;
+      font-weight: 700;
+      border-bottom: 2px solid #0056b3;
+      padding-bottom: 6px;
+    }
+
+    /* Inside boxes, inputs arranged with flex */
+    .box label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      color: #004085;
+      margin-bottom: 10px;
+    }
+
+    .box input[type="text"], .box select {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1.8px solid #ccc;
+      font-size: 14px;
+      transition: border-color 0.3s ease;
+    }
+    .box input[type="text"]:focus, .box select:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+
+    /* For 'Colour' label/input/select side by side in Urine and Stool */
+    .box .color-row {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .box .color-row input[type="text"],
+    .box .color-row select {
+      flex: 1;
+    }
+
+    /* Labels in .section (outside boxes) */
+    .section label {
+      font-weight: 600;
+    }
+
+    /* Inputs and selects in .section */
+    .section input[type="text"],
+    .section input[type="date"],
+    .section select {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1.8px solid #ccc;
+      font-size: 14px;
+      transition: border-color 0.3s ease;
+    }
+    .section input[type="text"]:focus,
+    .section input[type="date"]:focus,
+    .section select:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+
+    /* Buttons */
+    button.edit, button.delete {
+      margin-top: 10px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button.edit {
+      background-color: #28a745;
+      color: white;
+    }
+    button.edit:hover {
+      background-color: #218838;
+    }
+    button.delete {
+      background-color: #dc3545;
+      color: white;
+      margin-left: 15px;
+    }
+    button.delete:hover {
+      background-color: #c82333;
+    }
+
+    /* Add New Lab Report button */
+    #addReportBtn {
+      display: block;
+      margin: 0 auto 50px;
+      background: #007bff;
+      color: white;
+      font-weight: 700;
+      padding: 14px 40px;
+      border-radius: 10px;
+      border: none;
+      font-size: 17px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #addReportBtn:hover {
+      background-color: #0056b3;
+    }
+
+    /* Confirmation modal styling */
+    #confirmBox {
+      display:none;
       position: fixed;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       background: white;
-      padding: 20px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      padding: 25px 30px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.25);
       z-index: 999;
+      border-radius: 10px;
+      text-align: center;
     }
-    /* Age column narrower */
-    td:nth-child(3) input {
-      width: 60px;
+    #confirmBox p {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #333;
     }
-            td:nth-child(6) select {
-      width: 90px;
+    #confirmBox button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 700;
+      cursor: pointer;
+      margin: 0 10px;
+      font-size: 15px;
     }
-         td:nth-child(4) select {
-      width: 80px;
-    }
-    /* Complaint input wider */
-    td:nth-child(7) input {
-      min-width: 300px;
-    }
-    /* Add Row button styling */
-    #addRowBtn {
-      margin-bottom: 15px;
-      background: #007bff;
+    #confirmYesBtn {
+      background-color: #dc3545;
       color: white;
-      font-weight: bold;
+    }
+    #confirmYesBtn:hover {
+      background-color: #c82333;
+    }
+    #confirmNoBtn {
+      background-color: #6c757d;
+      color: white;
+    }
+    #confirmNoBtn:hover {
+      background-color: #565e64;
     }
   </style>
 </head>
 <body>
 
-<h2>Hospital Patient Appointment</h2>
+<h2>Hospital Lab Report System</h2>
 
+<div id="labReportsContainer"></div>
 
-<table>
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>Name</th>
-            <th>Age</th>
-            <th>Sex</th>
-            <th>Address</th>
-            <th>Appointment</th>
-            <th>Complaint</th>
-            <th>Edit</th>
-      <th>Delete</th>
-    </tr>
-</thead>
-<tbody id="patientTable"></tbody>
-</table>
+<button id="addReportBtn">Add New Lab Report</button>
 
-<div class="confirm" id="confirmBox">
-    <p>Are you sure you want to delete this record?</p>
-    <button id="confirmYes" onclick="confirmDelete(true)">Yes</button>
-    <button onclick="confirmDelete(false)">No</button>
+<div id="confirmBox">
+  <p>Are you sure you want to delete this report?</p>
+  <button id="confirmYesBtn">Yes</button>
+  <button id="confirmNoBtn">No</button>
 </div>
-<button id="addRowBtn">Add New patient</button>
 
 <script>
-  const fields = ["name", "age", "sex", "address", "type", "complaint"];
-  
-  // Load how many rows exist or default 100
-  let rowCount = parseInt(localStorage.getItem("rowCount")) || 10;
-  let nextRowId = rowCount + 1;
-  
-  const patientTable = document.getElementById("patientTable");
-  const confirmBox = document.getElementById("confirmBox");
-  let currentDeleteId = null;
-  
-  // Create a table row with inputs and buttons
-  function createRow(id) {
-      const tr = document.createElement("tr");
-      tr.dataset.id = id;
+  const fields = [
+    "patientName", "date",
+    "bfMalaria", "ictMalaria", "hb", "twbc", "esr", "rf", "aso", "rbs", "fbs", "hpp",
+    "urineColour", "urineColourSelect", "urineReaction", "urineSugar", "urineAlbumin",
+    "stoolColour", "stoolColourSelect", "stoolConsistency", "stoolMucous", "stoolBlood", "stoolWorms",
+    "sign"
+  ];
 
-    tr.innerHTML = `
-      <td>${id}</td>
-      <td><input id="name${id}" /></td>
-      <td><input id="age${id}" type="number" min="0" /></td>
-      <td>
-        <select id="sex${id}">
+  const container = document.getElementById("labReportsContainer");
+  const addReportBtn = document.getElementById("addReportBtn");
+  const confirmBox = document.getElementById("confirmBox");
+  const confirmYesBtn = document.getElementById("confirmYesBtn");
+  const confirmNoBtn = document.getElementById("confirmNoBtn");
+
+  let activeReports = JSON.parse(localStorage.getItem("activeReports")) || [1];
+  let nextReportId = Math.max(...activeReports, 0) + 1;
+
+  let currentDeleteId = null;
+
+  function createLabReportForm(id) {
+    const div = document.createElement("div");
+    div.classList.add("lab-form");
+    div.dataset.id = id;
+
+    div.innerHTML = `
+      <h3>Lab Report #${id}</h3>
+      <div class="section">
+        <label for="patientName${id}">Patient Name:</label>
+        <input type="text" id="patientName${id}" />
+        
+        <label for="date${id}">Date:</label>
+        <input type="date" id="date${id}" />
+      </div>
+
+      <div class="section" style="grid-template-columns: repeat(4, 1fr); gap: 15px 20px;">
+        <label for="bfMalaria${id}">B.F Malaria:</label>
+        <select id="bfMalaria${id}">
           <option value="">--Select--</option>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-          <option value="Other">Other</option>
+          <option value="positive">Positive</option>
+          <option value="negative">Negative</option>
         </select>
-      </td>
-      <td><input id="address${id}" /></td>
-      <td>
-        <select id="type${id}">
-          <option value="">--Select--</option>
-          <option>Checkup</option>
-          <option>Emergency</option>
-          <option>Follow-up</option>
-          <option>Referral</option>
-        </select>
-      </td>
-      <td><input id="complaint${id}" /></td>
-      <td><button class="edit" id="editBtn${id}" onclick="toggleEdit(${id})">Save</button></td>
-      <td><button class="delete" onclick="askDelete(${id})">Delete</button></td>
+
+        <label for="ictMalaria${id}">ICT Malaria:</label>
+        <input type="text" id="ictMalaria${id}" />
+
+        <label for="hb${id}">Hb:</label>
+        <input type="text" id="hb${id}" />
+
+        <label for="twbc${id}">T.W.B.C:</label>
+        <input type="text" id="twbc${id}" />
+
+        <label for="esr${id}">E.S.R:</label>
+        <input type="text" id="esr${id}" />
+
+        <label for="rf${id}">RF:</label>
+        <input type="text" id="rf${id}" />
+
+        <label for="aso${id}">ASO:</label>
+        <input type="text" id="aso${id}" />
+
+        <label for="rbs${id}">RBS:</label>
+        <input type="text" id="rbs${id}" />
+
+        <label for="fbs${id}">FBS:</label>
+        <input type="text" id="fbs${id}" />
+
+        <label for="hpp${id}">2HPP:</label>
+        <input type="text" id="hpp${id}" />
+      </div>
+
+      <div class="box">
+        <h4>Urine General</h4>
+        <div class="color-row">
+          <label for="urineColour${id}">Colour:</label>
+          <input type="text" id="urineColour${id}" />
+          <select id="urineColourSelect${id}" onchange="updateSelectColor(this)">
+            <option value="clear" style="background-color: rgb(255, 123, 0);">Clear</option>
+            <option value="cloudy" style="background-color: rgb(255, 196, 0);">Cloudy</option>
+            <option value="dark" style="background-color: rgb(229, 255, 0);">Dark</option>
+          </select>
+        </div>
+        <label for="urineReaction${id}">Reaction:</label>
+        <input type="text" id="urineReaction${id}" />
+        <label for="urineSugar${id}">Sugar:</label>
+        <input type="text" id="urineSugar${id}" />
+        <label for="urineAlbumin${id}">Albumin:</label>
+        <input type="text" id="urineAlbumin${id}" />
+      </div>
+
+      <div class="box">
+        <h4>Stool General</h4>
+        <div class="color-row">
+          <label for="stoolColour${id}">Colour:</label>
+          <input type="text" id="stoolColour${id}" />
+          <select id="stoolColourSelect${id}" onchange="updateSelectColor(this)">
+            <option value="brown" style="background-color: rgb(139,69,19);">Brown</option>
+            <option value="yellow" style="background-color: rgb(255, 255, 102);">Yellow</option>
+            <option value="green" style="background-color: rgb(102, 255, 102);">Green</option>
+            <option value="black" style="background-color: rgb(0,0,0); color: white;">Black</option>
+          </select>
+        </div>
+        <label for="stoolConsistency${id}">Consistency:</label>
+        <input type="text" id="stoolConsistency${id}" />
+        <label for="stoolMucous${id}">Mucous:</label>
+        <input type="text" id="stoolMucous${id}" />
+        <label for="stoolBlood${id}">Blood:</label>
+        <input type="text" id="stoolBlood${id}" />
+        <label for="stoolWorms${id}">Worms:</label>
+        <input type="text" id="stoolWorms${id}" />
+      </div>
+
+      <div class="section">
+        <label for="sign${id}">Sign:</label>
+        <input type="text" id="sign${id}" />
+      </div>
+
+      <div style="margin-top:20px; text-align: right;">
+        <button class="edit" id="editBtn${id}" onclick="toggleEdit(${id})">Save</button>
+        <button class="delete" onclick="askDelete(${id})">Delete</button>
+        <button class="edit">Send to the doctor</button>
+      </div>
     `;
 
-    patientTable.appendChild(tr);
+    container.appendChild(div);
 
-    // Add listeners to inputs/selects to detect edits
-    fields.forEach(f => {
-      const el = document.getElementById(`${f}${id}`);
-      el.addEventListener("input", () => setButtonToSave(id));
-      el.addEventListener("change", () => setButtonToSave(id));
+    // Add event listeners to inputs/selects
+    fields.forEach(field => {
+      const el = document.getElementById(field + id);
+      if (el) {
+        el.addEventListener("input", () => setButtonToSave(id));
+        el.addEventListener("change", () => setButtonToSave(id));
+      }
     });
   }
 
-  // Enable/Disable inputs in the row (disabled = true means inputs disabled)
   function toggleInputs(id, disabled) {
-    const row = document.querySelector(`tr[data-id="${id}"]`);
-    if (!row) return;
-    if (disabled) {
-      row.classList.add("disabled");
-    } else {
-      row.classList.remove("disabled");
-    }
+    const formDiv = document.querySelector(`.lab-form[data-id="${id}"]`);
+    if (!formDiv) return;
+    fields.forEach(field => {
+      const el = document.getElementById(field + id);
+      if (el) el.disabled = disabled;
+    });
+    formDiv.style.opacity = disabled ? "0.6" : "1";
   }
 
-  // Save all inputs in localStorage
-  function saveRow(id) {
-    fields.forEach(f => {
-      const input = document.getElementById(`${f}${id}`);
-      if (input) localStorage.setItem(`${f}${id}`, input.value);
+  function saveForm(id) {
+    fields.forEach(field => {
+      const el = document.getElementById(field + id);
+      if (el) {
+        localStorage.setItem(field + id, el.value);
+      }
     });
     const btn = document.getElementById(`editBtn${id}`);
     if (btn) localStorage.setItem(`btnState${id}`, btn.textContent);
   }
 
-  // Load saved inputs and button state from localStorage
-  function loadRow(id) {
-    fields.forEach(f => {
-      const el = document.getElementById(`${f}${id}`);
-      const val = localStorage.getItem(`${f}${id}`);
-      if (el && val !== null) el.value = val;
+  function loadForm(id) {
+    fields.forEach(field => {
+      const el = document.getElementById(field + id);
+      if (el) {
+        const val = localStorage.getItem(field + id);
+        if (val !== null) el.value = val;
+      }
     });
     const state = localStorage.getItem(`btnState${id}`) || "Save";
     const btn = document.getElementById(`editBtn${id}`);
     if (btn) btn.textContent = state;
     toggleInputs(id, state === "Edit");
+    updateSelectColors(id);
   }
 
-  // Toggle between Save and Edit states
+  function updateSelectColor(selectElem) {
+    const selectedOption = selectElem.options[selectElem.selectedIndex];
+    const bgColor = selectedOption.style.backgroundColor;
+    selectElem.style.backgroundColor = bgColor || '';
+  }
+
+  function updateSelectColors(id) {
+    const urineSelect = document.getElementById(`urineColourSelect${id}`);
+    const stoolSelect = document.getElementById(`stoolColourSelect${id}`);
+    if (urineSelect) updateSelectColor(urineSelect);
+    if (stoolSelect) updateSelectColor(stoolSelect);
+  }
+
   function toggleEdit(id) {
     const btn = document.getElementById(`editBtn${id}`);
     if (!btn) return;
     const isEdit = btn.textContent === "Edit";
     btn.textContent = isEdit ? "Save" : "Edit";
     toggleInputs(id, !isEdit);
-    saveRow(id);
+    if (!isEdit) {
+      saveForm(id);
+    }
   }
 
-  // When user types or changes a field, set button to Save and enable inputs
   function setButtonToSave(id) {
     const btn = document.getElementById(`editBtn${id}`);
     if (btn && btn.textContent === "Edit") {
@@ -182,63 +434,51 @@
     }
   }
 
-  // Ask confirmation before deleting
   function askDelete(id) {
     currentDeleteId = id;
     confirmBox.style.display = "block";
-    // Prevent clicking outside from immediately closing dialog
-    document.removeEventListener('click', hideConfirmingBox);
-    setTimeout(() => {
-      document.addEventListener("click", hideConfirmingBox);
-    }, 0);
   }
 
-  // Hide confirmation box if clicked outside
-  function hideConfirmingBox(event) {
-    const confirmDialog = document.getElementById("confirmBox");
-    if (!confirmDialog.contains(event.target)) {
-      confirmDialog.style.display = "none";
-      document.removeEventListener('click', hideConfirmingBox);
-    }
-  }
+  confirmYesBtn.onclick = () => {
+    if (currentDeleteId !== null) {
+      // Remove form from DOM
+      const formDiv = document.querySelector(`.lab-form[data-id="${currentDeleteId}"]`);
+      if (formDiv) formDiv.remove();
 
-  // Delete row data and reset inputs, then hide confirmation
-  function confirmDelete(doDelete) {
-    if (doDelete && currentDeleteId !== null) {
-      fields.forEach(f => {
-        const el = document.getElementById(`${f}${currentDeleteId}`);
-        if (el) {
-          el.value = "";
-          el.disabled = false;
-          localStorage.setItem(`${f}${currentDeleteId}`, "");
-        }
+      // Remove localStorage data for this form
+      fields.forEach(field => {
+        localStorage.removeItem(field + currentDeleteId);
+        localStorage.removeItem(`btnState${currentDeleteId}`);
       });
-      const btn = document.getElementById(`editBtn${currentDeleteId}`);
-      if (btn) btn.textContent = "Save";
-      toggleInputs(currentDeleteId, false);
-      localStorage.setItem(`btnState${currentDeleteId}`, "Save");
+
+      // Remove id from activeReports array and update storage
+      activeReports = activeReports.filter(id => id !== currentDeleteId);
+      localStorage.setItem("activeReports", JSON.stringify(activeReports));
+
+      confirmBox.style.display = "none";
+      currentDeleteId = null;
     }
+  };
+
+  confirmNoBtn.onclick = () => {
     confirmBox.style.display = "none";
+    currentDeleteId = null;
+  };
+
+  function addNewLabReport() {
+    createLabReportForm(nextReportId);
+    loadForm(nextReportId);
+    activeReports.push(nextReportId);
+    localStorage.setItem("activeReports", JSON.stringify(activeReports));
+    nextReportId++;
   }
 
-  // Add a new row dynamically and update localStorage rowCount
-  function addNewRow() {
-    createRow(nextRowId);
-    loadRow(nextRowId);
-    rowCount++;
-    localStorage.setItem("rowCount", rowCount);
-    nextRowId++;
-  }
-
-  // Initialize table on page load
   window.onload = () => {
-    for (let i = 1; i <= rowCount; i++) {
-      createRow(i);
-      loadRow(i);
-    }
-
-    // Hook up Add Row button
-    document.getElementById("addRowBtn").addEventListener("click", addNewRow);
+    activeReports.forEach(id => {
+      createLabReportForm(id);
+      loadForm(id);
+    });
+    addReportBtn.addEventListener("click", addNewLabReport);
   };
 </script>
 
